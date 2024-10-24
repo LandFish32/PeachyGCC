@@ -8,6 +8,8 @@ Comes with many features not found on the original controller
 -Turbo buttons
 -Auto accel
 
+Requires DevkitARM to build
+
 Special thanks to these users for their help on the GBAdev discord
 
 origamiScienceGuy
