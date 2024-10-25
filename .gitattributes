@@ -1,1 +1,1 @@
-*.inc linguist-detectable=false
+*.inc -linguist-detectable
