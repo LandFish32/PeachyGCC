@@ -6,7 +6,6 @@
 extern void processInput(int newFrame);
 extern void memcpy256(const void *dest,const void *src,const u32 len);
 extern struct ctrlState controllerState;
-extern void stupidFunc();
 
 const struct regObj AbuttonObj={AbuttonTiles,4,AbuttonTileIndex,AbuttonTilesLen,
 	ATTR0_BUILD(AbuttonYoffs,0,0,0,0,0,0), ATTR1_BUILDR(AbuttonXoffs,2,0,0), ATTR2_BUILD(AbuttonTileIndex,0,0)};
@@ -83,7 +82,7 @@ EWRAM_CODE void controlStateEntry(){			//Initialize background and all sprite ob
 	}
 	memcpy256(&tile_mem[4][ZpressedTileIndex],ZbuttonPressedTiles,ZbuttonPressedTilesLen);
 
-	REG_DISPSTAT=(REG_DISPSTAT&(~DSTAT_VCT_MASK))|(DSTAT_VCT(20)|DSTAT_VCT_IRQ);	//Set vCount IRQ, set vCount trigger value to 20
+	REG_DISPSTAT=(REG_DISPSTAT&(~DSTAT_VCT_MASK))|(DSTAT_VCT(20)|DSTAT_VCT_IRQ);	//Allow vCount IRQs, set vCount trigger value to 20
 	return;
 }
 EWRAM_CODE void controlStateProcess(){
