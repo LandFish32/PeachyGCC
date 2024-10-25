@@ -9,8 +9,8 @@
 	.type linkPortISR,%function
 linkPortISR:
 	@Load command in bit by bit in GP mode
-	@ONE CYCLE=60ns		@r0=counter,@r1=data,@r2=scratch,@r3=REG_RCNT,@r12=scratch
-	mov r0,#0x0a	@r0=10 loops
+	@ONE CYCLE=60ns					r0=timerCounter,r1=data,r2=scratch,r3=REG_RCNT,r12=receivedBits
+	mov r0,#0x0a					@r0=10 loops
 	ldr r3,=REG_RCNT
 	SIfirstHIwait:					@Wait in a loop for SI to go high
 		ldr r2,[r3]					@Loop=0.54us
@@ -33,7 +33,7 @@ linkPortISR:
 			bne SIreceiveLOwait
 			bx lr
 		LOwaitEnd:
-		mov r0,#0xa				@r0=10 loops
+		mov r0,#0xa					@r0=10 loops
 		SIreceiveHIwait:			@Wait for SI to go high
 			ldr r2,[r3]				@Loop=0.54us
 			tst r2,#GPIO_SI
@@ -42,12 +42,12 @@ linkPortISR:
 			bne SIreceiveHIwait
 			bx lr
 		HIwaitEnd:
-			cmp r0,#0x07			@If count>5, then hold time<3.5us, and the bit is 1
-			lsl r1,r1,#0x01
-			orrcs r1,r1,#0x01		@Shift a 1 into the LSB of r1 if hold time<2.5us. 0 otherwise
+			cmp r0,#0x07			@If count>5, then hold time<1.5us, and the bit is 1
 			add r12,r12,#0x01
-			bcc bitReceiveLoop
-			tstcs r12,#0x07
+			lsl r1,r1,#0x01
+			bcc bitReceiveLoop		@Go back to start of loop if bit==0, otherwise, put a 1 in data and perform a stop bit check
+			orr r1,r1,#0x01			@Shift a 1 into the LSB of r1 if hold time<2.5us. 0 otherwise
+			tst r12,#0x07
 			bne bitReceiveLoop		@Break from loop and go to decodeCommand if stop bit was received
 
 
@@ -78,7 +78,7 @@ linkPortISR:
 									@The response for a status command is always 8 bytes, so r7 can be used as a scratch register
 			ldr r2,=originFlags
 			ldrh r2,[r2]
-			orr r5,r5,r2			@Combine the first 4 bytes of controller state with flags to get the correct command response
+			orr r5,r5,r2			@Combine the first 4 bytes of controller state with flags to get the correct 2 bytes for status command response
 
 			and r0,r1,#0xff			@Check only the poll mode byte of r1
 			mov r1,#0x40			@Data length=64 bits
@@ -176,11 +176,11 @@ linkPortISR:
 		ldr r0,=responseBuffer
 		stmia r0,{r5-r7}			@r0 will be a pointer to the response buffer, and data will be sent from lowest to highest byte, but highest to lowest bit.
 
-		ldr r7,=(R_MODE_GPIO|GPIO_IRQ|GPIO_SO_OUTPUT)			@r7=SI_low
-		orr r6,r7,#GPIO_SO										@r6=SI_high
+		ldr r7,=(R_MODE_GPIO|GPIO_IRQ|GPIO_SO_OUTPUT)			@r7=SO_low
+		orr r6,r7,#GPIO_SO										@r6=SO_high
 
 	sendBitLoop:					@r0=bufferPtr,r1=msg length,r5=data,r2=scratch
-		str r7,[r3]					@Set SI to low now, figure out how long to hold later
+		str r7,[r3]					@Set SO to low now, figure out how long to hold later
 		tst r1,#0x07
 		ldreqb r5,[r0],#0x01		@Load next byte into r5 and increment bufferPtr if r0%8==0
 		ldrne r2,[r2]				@This instruction ensures timing is the same no matter if the conditional passed
@@ -191,7 +191,7 @@ linkPortISR:
 			subs r2,r2,#0x01
 			bne sendBitLowLoop
 		nop
-		str r6,[r3]					@Set SI to high now. The time between setting SI low and now is either 17 or 50 cycles (1 or 3us)
+		str r6,[r3]					@Set SO to high now. The time between setting SO low and now is either 17 or 50 cycles (1 or 3us)
 		tst r5,#0x80				@Check r5 again, because the countdown cleared flags
 		mov r2,#0x0a				@Set hold time to 10 loops if high, and 2 if low
 		moveq r2,#0x02
@@ -213,17 +213,7 @@ linkPortISR:
 			subs r2,r2,#0x01		@|-16 cycles~=1us
 			bne stopBitLowLoop		@|
 		str r6,[r3]					@-
-		mov r2,#0x0b				@-
-		stopBitHighLoop:			@|
-			subs r2,r2,#0x01		@|-45 cycles
-			bne stopBitHighLoop		@|
-		nop							@|
-		nop							@-
 	end:
-		ldr r4,=(R_MODE_GPIO|GPIO_IRQ|GPIO_SO_IO|GPIO_SO)	@Set SI back to input mode
-		str r4,[r3]					@+5=50 cycles=3us
-
-		
 		ldmia sp!,{r4-r7}
 		bx lr
 
