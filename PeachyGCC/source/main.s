@@ -28,7 +28,6 @@ main:
 		ldr r1,=ISRmain
 		ldr r3,=REG_ISR_MAIN		@r3=user interrupt function pointer in bios
 		str r1,[r3]
-		strh r1,[r0]				@dispcnt=OBJ display||1d mapping
 		
 		@Set vblank interrupt in dispstat
 		mov r1,#DSTAT_VBL_IRQ
@@ -37,9 +36,12 @@ main:
 		@Initialize SIO port
 		ldr r0,=REG_RCNT					@r0=rcnt
 		ldr r1,=(R_MODE_GPIO|GPIO_IRQ|GPIO_SO_IO|GPIO_SO)
-		str r1,[r0]							@RCNT=GP mode||interrupts enabled (but not yet in REG_IE)
+		str r1,[r0]							@RCNT=GP mode||interrupts enabled
 		
-		
+		@Set display mode in dispcnt
+		ldr r0,=REG_BASE
+		ldr r1,=(DCNT_OBJ_1D|DCNT_OBJ)
+		strh r1,[r0]
 
 		@Enable interrupts in REG_IME
 		str r4,[r2,#0x08]			@REG_IME=enabled
@@ -57,27 +59,22 @@ main:
 			add r1,r1,#0x08			@Increment r1 to point to next entry
 			tst r1,r2				@If r1&&r2!=0, break from loop
 			beq disableObject
-		
 
-		@Initialize palette. The palette data will not be modified for the rest of the time the program is running
-		ldr r1,=palettePal	@Load address of palette to r0
+		@Initialize palette. The palette data will not be modified for the rest of the time the program is running, so it can be initialized here
+
+		ldr r1,=palettePal		@Load address of palette to r0
 		ldr r0,=MEM_PAL_BG
-		ldr r2,=512		@Copy all colors
+		ldr r2,=512				@Copy all colors
 		
 		ldr r3,=memcpy256		@Call memcpy function
 		bl _call_via_r3
 		
 		ldr r1,=palettePal
 		ldr r0,=MEM_PAL_OBJ
-		ldr r2,=512		@Copy all 256 colors
+		ldr r2,=512				@Copy all 256 colors
 		
 		ldr r3,=memcpy256		@Call memcpy function
 		bl _call_via_r3
-		
-		@Set display mode in dispcnt
-		ldr r0,=REG_BASE
-		ldr r1,=(DCNT_OBJ_1D|DCNT_OBJ)
-		str r1,[r0]
 
 		@Initialize program state
 		ldr r0,=currentProcess		@Set current process to controlStateProcessPointer
