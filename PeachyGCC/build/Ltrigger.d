@@ -1,0 +1,1 @@
+Ltrigger.o: Ltrigger.s

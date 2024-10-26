@@ -1,5 +1,5 @@
-#include "inc/memmap.inc"
-#include "inc/tonc_memdef.inc"
+#include "memmap.inc"
+#include "tonc_memdef.inc"
 
 .section .iwram,"ax",%progbits
 

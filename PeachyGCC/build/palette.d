@@ -1,0 +1,1 @@
+palette.o: palette.s
