@@ -1,1 +1,0 @@
-dStick.o: dStick.s

@@ -1,1 +1,0 @@
-cStick.o: cStick.s

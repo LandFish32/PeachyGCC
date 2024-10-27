@@ -1,1 +1,0 @@
-STARTbutton.o: STARTbutton.s

@@ -1,1 +1,0 @@
-dPadLR.o: dPadLR.s

@@ -1,1 +1,0 @@
-Rtrigger.o: Rtrigger.s
