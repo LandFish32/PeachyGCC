@@ -54,8 +54,6 @@ linkPortISR:
 	@Decode the command received using switch cases
 	decodeCommand:
 		lsr r1,r1,#0x01				@Shift data register left by 1 to remove the stop bit
-		
-		add r12,r1,#0x00
 
 		stmdb sp!,{r4-r7}			@We finally have some time to push registers to stack, which will obviously be helpful
 		
@@ -68,19 +66,22 @@ linkPortISR:
 		statusCommand:
 			ldrb r0,ID+2			@Update ID response byte 3 with current rumble state and poll mode
 			bic r0,r0,#0x0f			@Clear lower 4 bits of r5
-			orr r0,r0,r1			@Apply poll mode to r5
-			orr r0,r0,r1,lsr #0x0e	@Apply rumble mode to r5
+			orr r0,r0,r1,lsr #0x08	@Apply poll mode to r5
+			orr r0,r0,r1,lsl #0x02	@Apply rumble mode to r5
 			strb r0,ID+2			@Save updated ID response byte 3 back to memory
+
 			
 			ldr r0,=controllerState	@Copy controller state data into r5 and r7
 			ldmia r0,{r5,r7}		@The first 4 bytes of the status response are always the same, so I load them directly into r5
 									@The last 4 bytes depend on the poll mode, so they will possibly be changed before being put into r6
 									@The response for a status command is always 8 bytes, so r7 can be used as a scratch register
+			
 			ldr r2,=originFlags
 			ldrh r2,[r2]
 			orr r5,r5,r2			@Combine the first 4 bytes of controller state with flags to get the correct 2 bytes for status command response
 
-			and r0,r1,#0xff			@Check only the poll mode byte of r1
+			lsr r0,r1,#0x08			@r0=poll mode
+			and r0,r0,#0xff			@Check only the poll mode byte of r1
 			mov r1,#0x40			@Data length=64 bits
 
 			chkPollMode0:
@@ -214,7 +215,9 @@ linkPortISR:
 			bne stopBitLowLoop		@|
 		str r6,[r3]					@-
 	end:
+			
 		ldmia sp!,{r4-r7}
+		
 		bx lr
 
 .balign 4
