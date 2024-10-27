@@ -67,7 +67,7 @@ subProfile0:
 	.byte dUfull	@UP
 	.byte dDfull	@DWN
 	.byte rFull		@R
-	.byte lFull		@L
+	.byte lFull	@L
 subProfile1:
 	.byte 0x00
 	.byte 0x00

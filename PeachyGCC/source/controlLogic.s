@@ -332,8 +332,8 @@ buttonActionTable:	@If an action is from 0x00 to 0x09, use this lookup table and
 
 stickInputTable:	@Can be used with action to determine the magnitude and direction (left/up or right/down) of a stick input on 1 axis
 	.byte 0x00		@00=full left/down
-	.byte 0x40		@01=tilt left/down
-	.byte 0xc0		@10=tilt right/up
+	.byte 0x50		@01=tilt left/down
+	.byte 0xb0		@10=tilt right/up
 	.byte 0xff		@11=full right/up
 @Control system variables
 
