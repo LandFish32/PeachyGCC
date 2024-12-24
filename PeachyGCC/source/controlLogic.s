@@ -4,7 +4,7 @@
 	.section .iwram,"ax",%progbits
 
 	.balign 4
-	.global processInput	@void processInput(bool newFrame);
+	.global processInput	@void processInput(int newFrame);
 	.arm
 	.type processInput,%function
 processInput:

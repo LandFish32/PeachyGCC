@@ -1,0 +1,12 @@
+#define Apress 0x0001
+#define Bpress 0x0002
+#define Xpress 0x0004
+#define Ypress 0x0008
+#define STARTpress 0x0010
+#define LFTpress 0x0100
+#define RHTpress 0x0200
+#define DWNpress 0x0400
+#define UPpress 0x0800
+#define Zpress 0x1000
+#define Rpress 0x2000
+#define Lpress 0x4000

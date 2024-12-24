@@ -1,0 +1,1 @@
+void memcpy256(const void *dest,const void *src,const u32 len);

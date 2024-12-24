@@ -28,10 +28,10 @@
 #define dUfull 0x19
 
 #define rFull 0x1a
-#define rHalf 0x1b
+#define rLight 0x1b
 
 #define lFull 0x1c
-#define lHalf 0x1d
+#define lLight 0x1d
 
 #define noAct 0x1e
 
@@ -67,7 +67,7 @@ subProfile0:
 	.byte dUfull	@UP
 	.byte dDfull	@DWN
 	.byte rFull		@R
-	.byte lFull	@L
+	.byte lFull		@L
 subProfile1:
 	.byte 0x00
 	.byte 0x00
