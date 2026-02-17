@@ -64,10 +64,10 @@ subProfile0:
 	.byte STpressAct@ST
 	.byte dRfull	@RHT
 	.byte dLfull	@LFT
-	.byte dUfull	@UP
+	.byte dUtilt	@UP
 	.byte dDfull	@DWN
 	.byte rFull		@R
-	.byte lFull		@L
+	.byte YpressAct	@L
 subProfile1:
 	.byte 0x00
 	.byte 0x00
